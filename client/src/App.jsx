@@ -16,6 +16,7 @@ import {
   Mail,
   Phone,
   User,
+  UserPlus,
   Printer,
   X,
   Sparkles,
@@ -35,7 +36,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Activity,
-  Check
+  Check,
+  EyeOff
 } from 'lucide-react';
 import './App.css';
 
@@ -63,6 +65,21 @@ export default function App() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
+
+  // Auth page tab: 'login' | 'register'
+  const [authTab, setAuthTab] = useState('login');
+
+  // Register form state
+  const [registerForm, setRegisterForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    role: 'receptionist'
+  });
+  const [showLoginPass, setShowLoginPass] = useState(false);
+  const [showRegisterPass, setShowRegisterPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
 
   // Visitors & Stats State
   const [visitors, setVisitors] = useState([]);
@@ -214,6 +231,53 @@ export default function App() {
     } finally {
       setAuthLoading(false);
     }
+  };
+
+  // Auth Handler: Register
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const { name, email, password, confirmPassword, role } = registerForm;
+
+    if (!name.trim()) return showToast('Full name is required', 'error');
+    if (!email.trim()) return showToast('Email address is required', 'error');
+    if (password.length < 6) return showToast('Password must be at least 6 characters', 'error');
+    if (password !== confirmPassword) return showToast('Passwords do not match', 'error');
+
+    try {
+      setAuthLoading(true);
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password, role })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setUser(data.data);
+        localStorage.setItem('visitor_auth_user', JSON.stringify(data.data));
+        showToast(`🎉 Account created! Welcome, ${data.data.name}!`, 'success');
+      } else {
+        showToast(`⚠️ ${data.message}`, 'error');
+      }
+    } catch (err) {
+      showToast('Error connecting to server. Please try again.', 'error');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // Password strength helper
+  const getPasswordStrength = (pwd) => {
+    if (!pwd) return { score: 0, label: '', color: '' };
+    let score = 0;
+    if (pwd.length >= 6) score++;
+    if (pwd.length >= 10) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+    if (score <= 1) return { score, label: 'Weak', color: '#f87171' };
+    if (score <= 3) return { score, label: 'Fair', color: '#fbbf24' };
+    return { score, label: 'Strong', color: '#34d399' };
   };
 
   // Auth Handler: Logout
@@ -419,8 +483,10 @@ export default function App() {
     return acc;
   }, {});
 
-  // RENDER LOGIN SCREEN IF NOT AUTHENTICATED
+  // RENDER LOGIN / REGISTER SCREEN IF NOT AUTHENTICATED
   if (!user) {
+    const pwStrength = getPasswordStrength(registerForm.password);
+
     return (
       <div className="auth-container">
         <div className="auth-blob"></div>
@@ -436,93 +502,277 @@ export default function App() {
         )}
 
         <div className="auth-card animate-modal">
+          {/* Brand Header */}
           <div className="auth-brand-icon">
-            <ShieldCheck size={36} />
+            {authTab === 'login' ? <ShieldCheck size={34} /> : <UserPlus size={34} />}
           </div>
-          <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-            Visitor Portal Access
+          <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            {authTab === 'login' ? 'Welcome Back' : 'Create Account'}
           </h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.75rem', marginTop: '0.3rem' }}>
-            Enterprise Visitor Management & Security Access Control
+          <p style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', marginTop: '0.25rem', marginBottom: '1.5rem' }}>
+            {authTab === 'login'
+              ? 'Enterprise Visitor Management & Access Control'
+              : 'Register a new staff account to access the portal'}
           </p>
 
-          <form onSubmit={(e) => handleLogin(e)}>
-            <div className="form-group" style={{ marginBottom: '1.1rem', textAlign: 'left' }}>
-              <label className="form-label">Email Address</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="email"
-                  className="form-control"
-                  style={{ width: '100%', paddingLeft: '2.5rem' }}
-                  placeholder="name@company.com"
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  required
-                />
-                <Mail size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              </div>
-            </div>
-
-            <div className="form-group" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
-              <label className="form-label">Password</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="password"
-                  className="form-control"
-                  style={{ width: '100%', paddingLeft: '2.5rem' }}
-                  placeholder="••••••••"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  required
-                />
-                <Lock size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              </div>
-            </div>
-
-            <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '0.8rem' }} disabled={authLoading}>
-              <Key size={18} /> {authLoading ? 'Signing in...' : 'Sign In to Portal'}
-            </button>
-          </form>
-
-          {/* Quick Role Login Buttons */}
-          <div className="demo-account-buttons">
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
-              Quick One-Click Demo Role Login:
-            </span>
-
+          {/* Tab Switcher */}
+          <div className="auth-tab-switcher">
             <button
-              className="demo-role-btn"
-              onClick={() => handleLogin(null, 'admin@company.com', 'admin123')}
+              className={`auth-tab-btn ${authTab === 'login' ? 'active' : ''}`}
+              onClick={() => { setAuthTab('login'); }}
+              type="button"
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Crown size={16} color="#f87171" />
-                <span>Login as <strong>System Admin</strong></span>
-              </div>
-              <span className="role-badge admin">Full Control</span>
+              <Key size={15} /> Sign In
             </button>
-
             <button
-              className="demo-role-btn"
-              onClick={() => handleLogin(null, 'reception@company.com', 'reception123')}
+              className={`auth-tab-btn ${authTab === 'register' ? 'active' : ''}`}
+              onClick={() => { setAuthTab('register'); }}
+              type="button"
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Users size={16} color="#a5b4fc" />
-                <span>Login as <strong>Receptionist</strong></span>
-              </div>
-              <span className="role-badge receptionist">CRUD Access</span>
-            </button>
-
-            <button
-              className="demo-role-btn"
-              onClick={() => handleLogin(null, 'security@company.com', 'security123')}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <ShieldCheck size={16} color="#34d399" />
-                <span>Login as <strong>Security Guard</strong></span>
-              </div>
-              <span className="role-badge security">Gate Access</span>
+              <UserPlus size={15} /> Create Account
             </button>
           </div>
+
+          {/* ── LOGIN FORM ── */}
+          {authTab === 'login' && (
+            <>
+              <form onSubmit={(e) => handleLogin(e)} style={{ width: '100%' }}>
+                <div className="form-group" style={{ marginBottom: '1rem', textAlign: 'left' }}>
+                  <label className="form-label">Email Address</label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="email"
+                      className="form-control"
+                      style={{ width: '100%', paddingLeft: '2.5rem' }}
+                      placeholder="name@company.com"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      required
+                      id="login-email"
+                    />
+                    <Mail size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
+                  <label className="form-label">Password</label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showLoginPass ? 'text' : 'password'}
+                      className="form-control"
+                      style={{ width: '100%', paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+                      placeholder="••••••••"
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      required
+                      id="login-password"
+                    />
+                    <Lock size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPass(!showLoginPass)}
+                      style={{ position: 'absolute', right: '0.9rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}
+                    >
+                      {showLoginPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  style={{ width: '100%', justifyContent: 'center', padding: '0.8rem' }}
+                  disabled={authLoading}
+                  id="login-submit-btn"
+                >
+                  <Key size={18} /> {authLoading ? 'Signing in...' : 'Sign In to Portal'}
+                </button>
+              </form>
+
+              {/* Quick Role Login Buttons */}
+              <div className="demo-account-buttons">
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
+                  Quick One-Click Demo Role Login:
+                </span>
+                <button className="demo-role-btn" onClick={() => handleLogin(null, 'admin@company.com', 'admin123')} id="demo-admin-btn">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Crown size={15} color="#f87171" />
+                    <span>Login as <strong>System Admin</strong></span>
+                  </div>
+                  <span className="role-badge admin">Full Control</span>
+                </button>
+                <button className="demo-role-btn" onClick={() => handleLogin(null, 'reception@company.com', 'reception123')} id="demo-reception-btn">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Users size={15} color="#a5b4fc" />
+                    <span>Login as <strong>Receptionist</strong></span>
+                  </div>
+                  <span className="role-badge receptionist">CRUD Access</span>
+                </button>
+                <button className="demo-role-btn" onClick={() => handleLogin(null, 'security@company.com', 'security123')} id="demo-security-btn">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <ShieldCheck size={15} color="#34d399" />
+                    <span>Login as <strong>Security Guard</strong></span>
+                  </div>
+                  <span className="role-badge security">Gate Access</span>
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* ── REGISTER FORM ── */}
+          {authTab === 'register' && (
+            <form onSubmit={handleRegister} style={{ width: '100%' }}>
+              {/* Full Name */}
+              <div className="form-group" style={{ marginBottom: '0.9rem', textAlign: 'left' }}>
+                <label className="form-label">Full Name <span style={{ color: '#f87171' }}>*</span></label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    className="form-control"
+                    style={{ width: '100%', paddingLeft: '2.5rem' }}
+                    placeholder="e.g. Aarav Sharma"
+                    value={registerForm.name}
+                    onChange={(e) => setRegisterForm(p => ({ ...p, name: e.target.value }))}
+                    required
+                    id="reg-name"
+                  />
+                  <User size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="form-group" style={{ marginBottom: '0.9rem', textAlign: 'left' }}>
+                <label className="form-label">Email Address <span style={{ color: '#f87171' }}>*</span></label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="email"
+                    className="form-control"
+                    style={{ width: '100%', paddingLeft: '2.5rem' }}
+                    placeholder="name@company.com"
+                    value={registerForm.email}
+                    onChange={(e) => setRegisterForm(p => ({ ...p, email: e.target.value }))}
+                    required
+                    id="reg-email"
+                  />
+                  <Mail size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                </div>
+              </div>
+
+              {/* Role Selector */}
+              <div className="form-group" style={{ marginBottom: '0.9rem', textAlign: 'left' }}>
+                <label className="form-label">Role / Access Level <span style={{ color: '#f87171' }}>*</span></label>
+                <div className="auth-role-selector">
+                  {[
+                    { value: 'receptionist', label: 'Receptionist', desc: 'Register & manage visitors', icon: <Users size={16} color="#a5b4fc" /> },
+                    { value: 'security', label: 'Security Guard', desc: 'Gate check-in only', icon: <ShieldCheck size={16} color="#34d399" /> },
+                    { value: 'admin', label: 'System Admin', desc: 'Full access & control', icon: <Crown size={16} color="#f87171" /> }
+                  ].map(r => (
+                    <button
+                      key={r.value}
+                      type="button"
+                      className={`role-select-card ${registerForm.role === r.value ? 'selected' : ''}`}
+                      onClick={() => setRegisterForm(p => ({ ...p, role: r.value }))}
+                    >
+                      {r.icon}
+                      <span className="role-select-name">{r.label}</span>
+                      <span className="role-select-desc">{r.desc}</span>
+                      {registerForm.role === r.value && <Check size={13} className="role-select-check" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="form-group" style={{ marginBottom: '0.5rem', textAlign: 'left' }}>
+                <label className="form-label">Password <span style={{ color: '#f87171' }}>*</span></label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showRegisterPass ? 'text' : 'password'}
+                    className="form-control"
+                    style={{ width: '100%', paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+                    placeholder="Min. 6 characters"
+                    value={registerForm.password}
+                    onChange={(e) => setRegisterForm(p => ({ ...p, password: e.target.value }))}
+                    required
+                    id="reg-password"
+                  />
+                  <Lock size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegisterPass(!showRegisterPass)}
+                    style={{ position: 'absolute', right: '0.9rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}
+                  >
+                    {showRegisterPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {/* Password Strength Meter */}
+                {registerForm.password && (
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '4px', marginBottom: '3px' }}>
+                      {[1,2,3,4,5].map(i => (
+                        <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i <= pwStrength.score ? pwStrength.color : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' }} />
+                      ))}
+                    </div>
+                    <span style={{ fontSize: '0.72rem', color: pwStrength.color, fontWeight: 700 }}>{pwStrength.label} password</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div className="form-group" style={{ marginBottom: '1.25rem', textAlign: 'left' }}>
+                <label className="form-label">Confirm Password <span style={{ color: '#f87171' }}>*</span></label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showConfirmPass ? 'text' : 'password'}
+                    className="form-control"
+                    style={{
+                      width: '100%',
+                      paddingLeft: '2.5rem',
+                      paddingRight: '2.5rem',
+                      borderColor: registerForm.confirmPassword && registerForm.password !== registerForm.confirmPassword ? '#f87171' : undefined
+                    }}
+                    placeholder="Re-enter your password"
+                    value={registerForm.confirmPassword}
+                    onChange={(e) => setRegisterForm(p => ({ ...p, confirmPassword: e.target.value }))}
+                    required
+                    id="reg-confirm-password"
+                  />
+                  <Lock size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPass(!showConfirmPass)}
+                    style={{ position: 'absolute', right: '0.9rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}
+                  >
+                    {showConfirmPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {registerForm.confirmPassword && registerForm.password !== registerForm.confirmPassword && (
+                  <p style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.3rem' }}>Passwords do not match</p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="btn-primary"
+                style={{ width: '100%', justifyContent: 'center', padding: '0.8rem' }}
+                disabled={authLoading || (registerForm.confirmPassword !== '' && registerForm.password !== registerForm.confirmPassword)}
+                id="register-submit-btn"
+              >
+                <UserPlus size={18} /> {authLoading ? 'Creating Account...' : 'Create My Account'}
+              </button>
+
+              <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => setAuthTab('login')}
+                  style={{ background: 'none', border: 'none', color: 'var(--accent-cyan)', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem' }}
+                >
+                  Sign In
+                </button>
+              </p>
+            </form>
+          )}
         </div>
       </div>
     );

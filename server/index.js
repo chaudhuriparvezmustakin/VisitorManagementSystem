@@ -5,11 +5,28 @@ const connectDB = require('./config/db');
 const visitorRoutes = require('./routes/visitorRoutes');
 const authRoutes = require('./routes/authRoutes');
 
+const User = require('./models/User');
+
 // Load env vars
 dotenv.config();
 
-// Connect Database
-connectDB();
+// Connect Database & Auto-Seed Users
+connectDB().then(async () => {
+  try {
+    const count = await User.countDocuments();
+    if (count === 0) {
+      console.log('No users found in DB. Auto-seeding default role accounts...');
+      await User.create([
+        { name: 'System Admin', email: 'admin@company.com', password: 'admin123', role: 'admin' },
+        { name: 'Front Desk Receptionist', email: 'reception@company.com', password: 'reception123', role: 'receptionist' },
+        { name: 'Gate Security Guard', email: 'security@company.com', password: 'security123', role: 'security' }
+      ]);
+      console.log('🔑 Default role accounts auto-created (Admin, Receptionist, Security)!');
+    }
+  } catch (err) {
+    console.error('Auto-seed check note:', err.message);
+  }
+});
 
 const app = express();
 
