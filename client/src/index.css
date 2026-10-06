@@ -1,0 +1,252 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@500;700&display=swap');
+
+/* ==========================================================================
+   DESIGN SYSTEM & MULTI-THEME TOKENS
+   ========================================================================== */
+
+/* 1. Default Dark Luxe Glass Theme */
+:root, [data-theme="dark-luxe"] {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+
+  --bg-main: #060913;
+  --bg-gradient: radial-gradient(circle at 50% -20%, #1c1d3b 0%, #0c1020 50%, #060913 100%);
+  --bg-sidebar: rgba(13, 17, 30, 0.85);
+  --bg-card: rgba(19, 26, 44, 0.7);
+  --bg-card-hover: rgba(27, 37, 62, 0.85);
+  --bg-glass-modal: rgba(10, 14, 26, 0.92);
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(99, 102, 241, 0.35);
+  --border-emerald: rgba(16, 185, 129, 0.35);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --accent-primary: #6366f1;
+  --accent-primary-hover: #4f46e5;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --accent-cyan: #06b6d4;
+
+  --status-in-bg: rgba(16, 185, 129, 0.15);
+  --status-in-border: rgba(16, 185, 129, 0.4);
+  --status-in-text: #34d399;
+
+  --status-out-bg: rgba(245, 158, 11, 0.15);
+  --status-out-border: rgba(245, 158, 11, 0.4);
+  --status-out-text: #fbbf24;
+
+  --danger-bg: rgba(239, 68, 68, 0.15);
+  --danger-border: rgba(239, 68, 68, 0.4);
+  --danger-text: #f87171;
+
+  --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.12);
+  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+}
+
+/* 2. Aurora Light Glass Theme */
+[data-theme="aurora-light"] {
+  --bg-main: #f1f5f9;
+  --bg-gradient: radial-gradient(circle at 50% 0%, #e0e7ff 0%, #f1f5f9 70%, #e2e8f0 100%);
+  --bg-sidebar: rgba(255, 255, 255, 0.85);
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-hover: rgba(255, 255, 255, 0.95);
+  --bg-glass-modal: rgba(255, 255, 255, 0.96);
+
+  --border-subtle: rgba(148, 163, 184, 0.25);
+  --border-glow: rgba(99, 102, 241, 0.4);
+  --border-emerald: rgba(16, 185, 129, 0.4);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  --accent-primary: #4f46e5;
+  --accent-primary-hover: #4338ca;
+  --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  --accent-cyan: #0284c7;
+
+  --status-in-bg: rgba(16, 185, 129, 0.12);
+  --status-in-border: rgba(16, 185, 129, 0.4);
+  --status-in-text: #059669;
+
+  --status-out-bg: rgba(217, 119, 6, 0.12);
+  --status-out-border: rgba(217, 119, 6, 0.4);
+  --status-out-text: #d97706;
+
+  --danger-bg: rgba(220, 38, 38, 0.1);
+  --danger-border: rgba(220, 38, 38, 0.3);
+  --danger-text: #dc2626;
+
+  --shadow-lg: 0 20px 35px -10px rgba(99, 102, 241, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 8px 24px -6px rgba(15, 23, 42, 0.06);
+}
+
+/* 3. Cyberpunk Neon Theme */
+[data-theme="cyber-neon"] {
+  --bg-main: #030712;
+  --bg-gradient: radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, #030712 60%), radial-gradient(circle at 20% 80%, rgba(236, 72, 153, 0.12) 0%, #030712 60%);
+  --bg-sidebar: rgba(10, 15, 29, 0.9);
+  --bg-card: rgba(15, 23, 42, 0.85);
+  --bg-card-hover: rgba(23, 33, 58, 0.95);
+  --bg-glass-modal: rgba(8, 12, 24, 0.96);
+
+  --border-subtle: rgba(6, 182, 212, 0.25);
+  --border-glow: rgba(6, 182, 212, 0.6);
+  --border-emerald: rgba(52, 211, 153, 0.5);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --accent-primary: #06b6d4;
+  --accent-primary-hover: #0891b2;
+  --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  --accent-cyan: #22d3ee;
+
+  --status-in-bg: rgba(52, 211, 153, 0.2);
+  --status-in-border: rgba(52, 211, 153, 0.6);
+  --status-in-text: #34d399;
+
+  --status-out-bg: rgba(251, 191, 36, 0.2);
+  --status-out-border: rgba(251, 191, 36, 0.6);
+  --status-out-text: #fbbf24;
+
+  --danger-bg: rgba(244, 63, 94, 0.2);
+  --danger-border: rgba(244, 63, 94, 0.6);
+  --danger-text: #fb7185;
+
+  --shadow-lg: 0 0 25px rgba(6, 182, 212, 0.25);
+  --shadow-card: 0 0 15px rgba(6, 182, 212, 0.15);
+}
+
+/* 4. IBM Carbon Corporate Tech Theme */
+[data-theme="ibm-corporate"] {
+  --bg-main: #0b1329;
+  --bg-gradient: linear-gradient(180deg, #0f1c3f 0%, #0b1329 100%);
+  --bg-sidebar: rgba(15, 28, 63, 0.9);
+  --bg-card: rgba(21, 37, 80, 0.7);
+  --bg-card-hover: rgba(30, 52, 110, 0.85);
+  --bg-glass-modal: rgba(11, 22, 50, 0.95);
+
+  --border-subtle: rgba(59, 130, 246, 0.2);
+  --border-glow: rgba(14, 165, 233, 0.5);
+  --border-emerald: rgba(16, 185, 129, 0.4);
+
+  --text-primary: #ffffff;
+  --text-secondary: #a5f3fc;
+  --text-muted: #64748b;
+
+  --accent-primary: #0284c7;
+  --accent-primary-hover: #0369a1;
+  --accent-gradient: linear-gradient(135deg, #0284c7 0%, #0f766e 100%);
+  --accent-cyan: #38bdf8;
+
+  --status-in-bg: rgba(16, 185, 129, 0.2);
+  --status-in-border: rgba(16, 185, 129, 0.5);
+  --status-in-text: #34d399;
+
+  --status-out-bg: rgba(245, 158, 11, 0.2);
+  --status-out-border: rgba(245, 158, 11, 0.5);
+  --status-out-text: #fcd34d;
+
+  --danger-bg: rgba(239, 68, 68, 0.2);
+  --danger-border: rgba(239, 68, 68, 0.5);
+  --danger-text: #f87171;
+
+  --shadow-lg: 0 15px 35px rgba(2, 132, 199, 0.2);
+  --shadow-card: 0 8px 24px rgba(2, 132, 199, 0.12);
+}
+
+/* ==========================================================================
+   BASE & SCROLLBAR
+   ========================================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-main);
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.4);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-15px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.95) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+@keyframes floatBlob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -20px) scale(1.1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-right {
+  animation: slideRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-modal {
+  animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--status-in-text);
+  box-shadow: 0 0 10px var(--status-in-text);
+  animation: pulseGlow 2s infinite ease-in-out;
+}
