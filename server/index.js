@@ -22,16 +22,29 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/visitors', visitorRoutes);
 
-// Root Health Route
-app.get('/', (req, res) => {
-  res.json({
-    status: 'Active',
-    message: 'Employee Visitor Management System API Server',
-    timestamp: new Date(),
-  });
-});
+// Serve static frontend build in production if present
+const path = require('path');
+const fs = require('fs');
+const clientDistPath = path.join(__dirname, '../client/dist');
 
-// 404 Route Handler
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.originalUrl.startsWith('/api')) return next();
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+} else {
+  // Root Health Route (fallback when client build is not present)
+  app.get('/', (req, res) => {
+    res.json({
+      status: 'Active',
+      message: 'Employee Visitor Management System API Server',
+      timestamp: new Date(),
+    });
+  });
+}
+
+// 404 Route Handler for API endpoints
 app.use((req, res, next) => {
   res.status(404).json({
     success: false,
